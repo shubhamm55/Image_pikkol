@@ -1,9 +1,7 @@
 package pikkol.img4;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -17,42 +15,33 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-
 import android.widget.ImageView;
 import android.widget.Toast;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import cz.msebera.android.httpclient.Header;
+
+
 
 public class MainActivity extends AppCompatActivity {
     ImageView imageView;
-    Button photo, load, upload;
+    Button photo, upload;
     static final int REQUEST_CAMERA = 1;
     String mCurrentPhotoPath;
     Uri photoURI;
     File photoFile = null;
-
     //trying to upoad on server through gallery
     ProgressDialog prgDialog;
     String encodedString;
     RequestParams params = new RequestParams();
     String  fileName;
     Bitmap bitmap;
-    private static int RESULT_LOAD_IMG = 1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +50,6 @@ public class MainActivity extends AppCompatActivity {
         prgDialog = new ProgressDialog(this);
         // Set Cancelable as False
         prgDialog.setCancelable(false);
-
-        /*load = (Button) this.findViewById(R.id.load);
-        load.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadImagefromGallery();
-            }
-        });*/
         upload = (Button) this.findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -88,45 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        /*try {
-            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
-                    && null != data) {
-                // Get the Image from data
-
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                // Get the cursor
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
-                // Move to first row
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                imgPath = cursor.getString(columnIndex);
-                cursor.close();
-                // Set the Image in ImageView
-                imageView.setImageBitmap(BitmapFactory
-                        .decodeFile(imgPath));
-                // Get the Image's file name
-                String fileNameSegments[] = imgPath.split("/");
-                fileName = fileNameSegments[fileNameSegments.length - 1];
-                // Put file name in Async Http Post Param which will used in Php web app
-                params.put("filename", fileName);
-
-            } else {
-                Toast.makeText(this, "You haven't picked Image",
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-            catch(Exception ex){
-                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
-                        .show();
-            }
-
-
-
-    }*/
         if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
 
             setPic();
@@ -145,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,contentUri);
         sendBroadcast(mediaScanIntent);
     }
-
 
 
     public void dispatchTakePictureIntent() {
@@ -167,28 +108,16 @@ public class MainActivity extends AppCompatActivity {
                 photoURI = FileProvider.getUriForFile(this,
                         "com.example.android.fileprovider",
                         photoFile);
-
-                //File out = Environment.getExternalStorageDirectory();
-                //out = new File(out, String.valueOf(photoFile));
                 takePictureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, photoURI); //If you specified MediaStore.EXTRA_OUTPUT, the image taken will be written to that path, and no data will given to onActivityResult. You can read the image from what you specified.
-                // takePictureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,Uri.fromFile(out));
-                startActivityForResult(takePictureIntent, REQUEST_CAMERA);//original
-
+                startActivityForResult(takePictureIntent, REQUEST_CAMERA);
 
             }
         }
 
     }
 
-/*    public void loadImagefromGallery() {
-        // Create intent to Open Image applications like Gallery, Google Photos
-        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        // Start the Intent
-        startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
-    }
-
-  */  public void uploadImage() {
+    public void uploadImage()
+    {
         // When Image is selected from Gallery
         if (mCurrentPhotoPath != null && !mCurrentPhotoPath.isEmpty()) {
             prgDialog.setMessage("Converting Image to Binary Data");
@@ -199,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(
                     getApplicationContext(),
-                    "You must select image from gallery before you try to upload",
+                    "You must select image  before you try to upload",
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -287,22 +216,8 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-
-
-
-                    // When the response returned by REST has Http
-                    // response code '200'
-
-                    // When the response returned by REST has Http
-                    // response code other than '200' such as '404',
-                    // '500' or '403' etc
-
-
-
-
-
-
-    private File createImageFile() throws IOException {
+    private File createImageFile() throws IOException
+    {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -314,10 +229,11 @@ public class MainActivity extends AppCompatActivity {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-
         mCurrentPhotoPath =  image.getAbsolutePath();
         return image;
     }
+
+
     private void setPic() {
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
@@ -340,6 +256,11 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         imageView.setImageBitmap(bitmap);
+
+        String fileNameSegments[] = mCurrentPhotoPath.split("/");
+        fileName = fileNameSegments[fileNameSegments.length - 1];
+        // Put file name in Async Http Post Param which will used in Php web app
+        params.put("filename", fileName);
     }
 
 }
